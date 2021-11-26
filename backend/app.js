@@ -1,4 +1,4 @@
-// HyperionDev Full Stack Web Development Bootcamp - Express task - Level 2 - Task 18 - Compulsory task 2 - Express
+// HyperionDev Full Stack Web Development Bootcamp - Express task - Level 2 - Task 19 - Compulsory task - Express
 
 //Import the express module
 const express = require('express');
@@ -36,12 +36,16 @@ app.get('/', function (req, res) {
     });
 });
 
-// Display contents of Web Projects array of objects to screen when user navigates to /api
+// Display contents of Web Projects array of objects to screen when user navigates to /show-projects url
 app.get('/show-projects', (req, res) => {
+
+    // read contents of file and send to frontend if no error, else send error message
     fileHandler.readFile('webProject.json', (err, data) => {
         if (err) {
+            // If error, send error message
             res.send({"message":"File not found."});
         } else {
+            // Else send data
             res.send({"message": `${data}`});
         }
     });
@@ -49,24 +53,23 @@ app.get('/show-projects', (req, res) => {
 
 /* The following website helped me with the array methods in this task:
 https://www.freecodecamp.org/news/javascript-array-of-objects-tutorial-how-to-create-update-and-loop-through-objects-using-js-array-methods/ 
-
 */
 
 /*
-Create route handler for POST request. Takes data user enters into post request, creates object from it, then uses 
-"push()" to add object to array of objects. Finally, it overwrites the "webProject.json" file with the updated array. Suggest the user enter the following in Postman POST textbox: 
-http://localhost:8080/?id=3&title=testtitle&desc=testdescription&url=testurl  */
+Create route handler for POST request. Takes data user enters into post request form, creates object from it, then uses 
+"push()" to add object to array of objects. Finally, it overwrites the "webProject.json" file with the updated array. */
 app.post('/create-project', (req, res) => {
 
     // First read file so we can create an array from the contents
     fileHandler.readFile('webProject.json', (err, data) => {
+
+        // If error, send error message
         if (err) res.send({"message":"File not found."});
 
         /* Create array of objects from data in "webProject.json" file. Remember to parse data first. This website helped me to do this: https://www.w3schools.com/js/js_json_parse.asp */
         let initialArray = JSON.parse(data);
-        //console.log("Initial Array says: " + initialArray);
 
-        // Create new object from data in post request
+        // Create new object from data in post request (from info user typed into form)
         let newObject = {
             "id": req.body.id,
             "title": req.body.title,
@@ -78,27 +81,30 @@ app.post('/create-project', (req, res) => {
         initialArray.push(newObject);
 
         /* Stringify array. Was reminded how to do this here:
-        https://www.w3schools.com/js/js_json_stringify.asp */
+        https://www.w3schools.com/js/js_json_stringify.asp 
+        
+        Include parameters to beautify a bit */
         let finalArray = JSON.stringify(initialArray, null, 2);
 
         // Overwrite file with updated, stringified array
         fileHandler.writeFile('webProject.json', finalArray, (err) => {
             if (err) throw err;
+            // Send msg to say we succeeded
             res.send({"message":"File updated!"});
         });
        
-        // End of fileHandler.readFile and chained callback - fileHandler.writeFile
+     // End of fileHandler.readFile and chained callback - fileHandler.writeFile
     });
 
-    // End of app.post route handler
+ // End of app.post route handler
 });
 
-/* Create DELETE route handler that removes a web Project item with the id that the user specifies in their request (i.e. a specific object from the array of objects). Suggest user type this into Postman DELETE textbox: 
-http://localhost:8080/?id=3 */
-app.delete('/delete-project/', (req, res) => {
+/* Create DELETE route handler that removes a web Project item with the id that the user specifies in their request (i.e. a specific object from the array of objects). */
+app.delete('/delete-project', (req, res) => {
 
     // Read file so we can create an array from the contents
     fileHandler.readFile('webProject.json', (err, data) => {
+        // If error, send error message
         if (err) res.send({"message":"File not found."});
 
         // Create array of objects from data in "webProject.json" file
@@ -108,19 +114,21 @@ app.delete('/delete-project/', (req, res) => {
             index, since index starts at 0, not 1) */
         initialArray.splice(req.body.id - 1, 1);
 
-        // Stringify final updated array
+        // Stringify final updated array with parameters to beautify a bit
         let finalArray = JSON.stringify(initialArray, null, 2);
 
         // Overwrite file with contents of updated and stringified array (finalArray)
         fileHandler.writeFile('webProject.json', finalArray, (err) => {
+            // if error, create error msg
             if (err) throw err;
+            // if success, send success msg
             res.send({"message":"File updated!"});
         });
 
-        // fileHandler.readfile and chained callback function ends
+     // fileHandler.readfile and chained callback function ends
     });
 
-    // end of app.delete
+ // end of app.delete
 });
 
 /* Create PUT route handler that takes request from user and updates the data of an item with a specific id in the webProject array.  
@@ -131,15 +139,16 @@ app.put('/update-project/:id', (req, res) => {
 
     // Read file so we can create an array from the contents
     fileHandler.readFile('webProject.json', (err, data) => {
+        // if error, send error msg
         if (err) res.send({"message":"File not found."});
 
-        // Create array of objects from data in "webProject.json" file
+        // Create array of objects from data in "webProject.json" file (parse data into Javascript array)
         let initialArray = JSON.parse(data);
 
         // Minus one from the id the user entered so that it corresponds to the array index which starts at 0 not 1
         let id = req.params.id - 1;
 
-        /* if statements make it so that it only updates items that user has provided new values for on form. If input fields on form were left blank, then the original values from "webProject.json" file will be kept.  */
+        /* Update array items that user has provided new values for in form. */
         
         initialArray[id].title = req.body.title;
     
@@ -147,21 +156,23 @@ app.put('/update-project/:id', (req, res) => {
     
         initialArray[id].url = req.body.url;
 
-        // Stringify array
+        // Stringify array with parameters to beautify a bit
         let finalArray = JSON.stringify(initialArray, null, 2);
 
         // Overwrite file with updated and stringified array (finalArray)
         fileHandler.writeFile('webProject.json', finalArray, (err) => {
+            // if error, create error msg
             if (err) throw err;
+            // if success, send success msg
             res.send({"message":"File updated!"});
         });
 
      // End of fileHandler.readfile and chained callback - fileHandler.writeFile
     });
-
+ // End of PUT request route handler
 });
 
-// Include what emssage to display if the user types in an incorrect url
+// Include what message to display if the user types in an incorrect url
 app.get('*', function (req, res) {
     res.send({"message":"Sorry! Can't find that resource. Please check your URL."});
 });

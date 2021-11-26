@@ -1,8 +1,8 @@
 [
   {
     "id": 1,
-    "title": "second title",
-    "description": "djhjdfjhg",
+    "title": "third time",
+    "description": "dexcriopt",
     "URL": "https://secret-inlet-96684.herokuapp.com/",
     "url": "url"
   },
@@ -17,24 +17,5 @@
     "title": "testtitle",
     "description": "testdescription",
     "URL": "testurl"
-  },
-  {
-    "id": "4",
-    "title": "better title",
-    "description": "This is a resume website for Evan Malherbe",
-    "URL": "testurl",
-    "url": "https://evanmalherbe.github.io/Evan_Malherbe_resume/"
-  },
-  {
-    "id": "5",
-    "title": "fifth title",
-    "description": "This is a resume website for Evan Malherbe",
-    "url": "kerjerkje"
-  },
-  {
-    "id": "6",
-    "title": "six",
-    "description": "desc",
-    "url": "url"
   }
 ]

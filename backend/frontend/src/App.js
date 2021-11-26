@@ -3,6 +3,7 @@ import React from 'react';
 // Import logo image
 import logo from './animalLogo.png';
 
+// Import Bootstrap components
 import { Form, FormGroup, FormControl } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 
@@ -16,6 +17,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 class App extends React.Component {
   constructor(props) {
     super(props);
+
     // Define state variables
     this.state = {
       error: null,
@@ -39,8 +41,6 @@ class App extends React.Component {
     };
 
     // Binding to make "this" work
-    //this.getData = this.getData.bind(this);
-
     this.handleChangeIdPost = this.handleChangeIdPost.bind(this);
     this.handleChangeTitlePost = this.handleChangeTitlePost.bind(this);
     this.handleChangeDescPost = this.handleChangeDescPost.bind(this);
@@ -87,20 +87,17 @@ handleChangeIdPut(event) {
 
 handleChangeTitlePut(event) {
   this.setState({putTitleInput: event.target.value}, () => console.log("title is: " + this.state.putTitleInput));
-
 }
 
 handleChangeDescPut(event) {
   this.setState({putDescInput: event.target.value}, () => console.log("Description is: " + this.state.putDescInput));
-
 }
 
 handleChangeUrlPut(event) {
   this.setState({putUrlInput: event.target.value}, () => console.log("Url is: " + this.state.putUrlInput));
- 
 }
 
-// DELETE: Form input
+// DELETE: Add form input tp state variable.
 handleChangeIdDelete(event) {
   this.setState({deleteIdInput: {"id": event.target.value}}, () => console.log("Id is: " + this.state.deleteIdInput))
 }
@@ -109,7 +106,7 @@ handleChangeIdDelete(event) {
 async handleSubmitDelete(event) {
   //console.log("deleteidinput is: " + this.state.deleteIdInput);
   try {
-    let url = "/delete-project/";
+    let url = "/delete-project";
     const response = await fetch(url, {
       method: "DELETE",
       headers: {
@@ -131,6 +128,7 @@ then uses HTTP PUT to send it to the backend Express route handler to add update
 The updated file contents is then displayed at the bottom of the page.*/
 handleSubmitPut(event) {
   
+      // Add form input to state variable
       this.setState({
         putFormData: {"id": this.state.putIdInput, 
         "title": this.state.putTitleInput, 
@@ -138,9 +136,9 @@ handleSubmitPut(event) {
         "url": this.state.putUrlInput
       }}, async () => {
 
-      // Callback function for setState. i.e. only do the below once "putFormData" variable has been set
+      // Asyncronous callback function for setState. i.e. only do the below once "putFormData" variable has been set
       try {
-        
+        // Include id of object that must be updated in url
         let url = "/update-project/" + this.state.putIdInput;
         console.log("url is: " + url);
 
@@ -149,9 +147,12 @@ handleSubmitPut(event) {
           headers: {
             "Content-Type": "application/json",
           },
+          // Send form data in body
           body: JSON.stringify(this.state.putFormData), 
         });
-        const response_1 = await response.json(); // parses response to JSON
+
+        // parses response to JSON
+        const response_1 = await response.json(); 
         return alert("Success: ", response_1);
       } catch (error) {
           return console.log("Error: ", error);
@@ -166,6 +167,7 @@ handleSubmitPut(event) {
 /* HTTP POST: When user clicks "Create Project" button, this function adds data from form to state variable, then uses HTTP POST to send it to the backend Express route handler to add data to "webProject.json" file. The updated file contents is then displayed at the bottom of the page.  */
 handleSubmitPost(event) {
 
+// Add form data to state variable
  this.setState({
     postFormData: {
     "id": this.state.idInput, 
@@ -174,13 +176,14 @@ handleSubmitPost(event) {
     "url": this.state.urlInput
   } }, async () => { 
 
-      // Callback function for setState. i.e. only do the below once "postFormData" variable has been set
+      // Asynchronous callback function for setState. i.e. only do the below once "postFormData" variable has been set
       try {
      const response = await fetch("/create-project", {
        method: "POST",
        headers: {
          "Content-Type": "application/json",
        },
+       // Send for data in body
        body: JSON.stringify(this.state.postFormData),
      });
      const response_1 = await response.json();
@@ -188,17 +191,23 @@ handleSubmitPost(event) {
    } catch (error) {
      return console.log("Error: ", error);
    }
+
+  // End of async callback function for setState
   });
+
+// End of handle submit post function
 }
 
+// Create lists from data in webProject.json file - fetched from backend server
 formatData() {
-  // Change data from proxy server into an object
-  //console.log("message is: " + this.state.message);
-  
+
+  // Change data from server into an Javascript object with JSON.parse()
   let msg = JSON.parse(this.state.message);
   
+  // If array has items in it, do the following
   if (msg.length !== 0) {
-      // Use map() method to create list items for each object 
+
+      // Use map() method to create list items for each object in array
       let items = msg.map(item => {
         return (
           <ul key={item.id}>
@@ -213,20 +222,25 @@ formatData() {
   } else {
       return <p className="emptyFile">No projects in file.</p>;
   }
+
+// End of formatdata function
 }
 
+// Function to fetch data from server
 createOutput() {
  
+  // If statement to check if data has been fetched yet. If so, don't do it again (can cause infinite loop otherwise)
   if (this.state.isLoaded === false) {
     console.log("getdata has started");
     // call fetch function to get "Web Project" data from Express API
     fetch("/show-projects")
-    // use json method to convert data to an object
+    // use json method to convert JSON data into a Javascript object
     .then(res => res.json())
-    // Deal with result by specifying what to do if successful or not. If success, save data to state array, if not, 
+    // Deal with result by specifying what to do if successful or not. If success, save data to state variable, if not, 
     // create error message
     .then(
           (result) => {
+              console.log("Result is: " + result.message);
               this.setState({
                   isLoaded: true,
                   message: result.message
@@ -243,6 +257,7 @@ createOutput() {
    // End of if statement to check if message data has already been fetched
   }
 
+  // If statement to display error message if there was a problem, or call formatdata() function is successful.
   const { error, isLoaded, message } = this.state;
   if (error) {
       return <div>Error: {error.message}</div>;
@@ -260,8 +275,8 @@ createOutput() {
 // End of createoutput function
 }
 
-// function to display divs and form on page. Looked at this website to remind myself about Bootstrap Forms:
-// https://react-bootstrap.netlify.app/components/forms/
+/* function to display divs and form on page. Looked at this website to remind myself about Bootstrap Forms:
+ https://react-bootstrap.netlify.app/components/forms/ */
 displayPage() {
   
   return (
@@ -273,6 +288,7 @@ displayPage() {
          
             <div className="input">
             
+            {/* Div with form for HTTP POST request - user enters info to create new "web project" */}
               <div className="postFormDiv">
                 <p><b>HTTP POST:</b> Type in the values of a new web project to store</p>
 
@@ -300,6 +316,7 @@ displayPage() {
                {/* End of postFormDiv*/}
               </div>
 
+              {/* Div with form for HTTP PUT request - user enters info to update existing "web project" */}
               <div className="putFormDiv">
                 <p><b>HTTP PUT:</b> Type in updated values for one of the web projects already in storage</p>
 
@@ -328,6 +345,7 @@ displayPage() {
                {/* End of putFormDiv*/}
               </div>
 
+              {/* Div with form for HTTP Delete request - user enters id of existing "web project" to delete */}
               <div className="deleteFormDiv">
                 <p><b>HTTP DELETE:</b> Select a web project entry to delete</p>
 
@@ -346,6 +364,7 @@ displayPage() {
              {/* End of input div*/}
             </div>
 
+          {/* div to display list of web projects from from "webProject.json" file on server */}
           <div className="output">
             <h2>Contents of webProjects.json file</h2>
             {this.createOutput()}
